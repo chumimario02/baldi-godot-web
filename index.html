@@ -89,13 +89,56 @@ body {
 	text-align: center;
 	z-index: 1;
 }
+
+/* Device prompt */
+#device-prompt {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#device-prompt h1 {
+	font-size: 2rem;
+	margin-bottom: 2rem;
+}
+
+#device-prompt button {
+	font-size: 1.5rem;
+	padding: 1rem 2rem;
+	margin: 0.5rem;
+	border: none;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	background-color: #4a4a4a;
+	color: white;
+	min-width: 250px;
+}
+
+#device-prompt button:hover {
+	background-color: #6a6a6a;
+}
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 
 	</head>
 	<body>
-		<canvas id="canvas">
+		<div id="device-prompt">
+			<h1>En que dispositivo juegas?</h1>
+			<button id="btn-phone">Telefono / Tablet</button>
+			<button id="btn-pc">PC</button>
+		</div>
+
+		<canvas id="canvas" style="display:none;">
 			Your browser does not support the canvas tag.
 		</canvas>
 
@@ -111,110 +154,133 @@ body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75132544,"index.wasm":52106500},"focusCanvas":true,"gdextensionLibs":[]};
-const GODOT_THREADS_ENABLED = false;
-const engine = new Engine(GODOT_CONFIG);
+const devicePrompt = document.getElementById('device-prompt');
+const canvas = document.getElementById('canvas');
 
-(function () {
-	const statusOverlay = document.getElementById('status');
-	const statusProgress = document.getElementById('status-progress');
-	const statusNotice = document.getElementById('status-notice');
+function startGame(touchControls) {
+	window.godotTouchControls = touchControls;
+	localStorage.setItem('godotTouchControls', touchControls ? '1' : '0');
+	devicePrompt.style.display = 'none';
+	canvas.style.display = 'block';
 
-	let initializing = true;
-	let statusMode = '';
+	const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75132544,"index.wasm":52106500},"focusCanvas":true,"gdextensionLibs":[]};
+	const GODOT_THREADS_ENABLED = false;
+	const engine = new Engine(GODOT_CONFIG);
 
-	function setStatusMode(mode) {
-		if (statusMode === mode || !initializing) {
-			return;
-		}
-		if (mode === 'hidden') {
-			statusOverlay.remove();
-			initializing = false;
-			return;
-		}
-		statusOverlay.style.visibility = 'visible';
-		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-		statusMode = mode;
-	}
+	(function () {
+		const statusOverlay = document.getElementById('status');
+		const statusProgress = document.getElementById('status-progress');
+		const statusNotice = document.getElementById('status-notice');
 
-	function setStatusNotice(text) {
-		while (statusNotice.lastChild) {
-			statusNotice.removeChild(statusNotice.lastChild);
-		}
-		const lines = text.split('\n');
-		lines.forEach((line) => {
-			statusNotice.appendChild(document.createTextNode(line));
-			statusNotice.appendChild(document.createElement('br'));
-		});
-	}
+		let initializing = true;
+		let statusMode = '';
 
-	function displayFailureNotice(err) {
-		console.error(err);
-		if (err instanceof Error) {
-			setStatusNotice(err.message);
-		} else if (typeof err === 'string') {
-			setStatusNotice(err);
-		} else {
-			setStatusNotice('An unknown error occurred.');
-		}
-		setStatusMode('notice');
-		initializing = false;
-	}
-
-	const missing = Engine.getMissingFeatures({
-		threads: GODOT_THREADS_ENABLED,
-	});
-
-	if (missing.length !== 0) {
-		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
-			let serviceWorkerRegistrationPromise;
-			try {
-				serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
-			} catch (err) {
-				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
+		function setStatusMode(mode) {
+			if (statusMode === mode || !initializing) {
+				return;
 			}
-			// There's a chance that installing the service worker would fix the issue
-			Promise.race([
-				serviceWorkerRegistrationPromise.then((registration) => {
-					if (registration != null) {
-						return Promise.reject(new Error('Service worker already exists.'));
-					}
-					return registration;
-				}).then(() => engine.installServiceWorker()),
-				// For some reason, `getRegistration()` can stall
-				new Promise((resolve) => {
-					setTimeout(() => resolve(), 2000);
-				}),
-			]).then(() => {
-				// Reload if there was no error.
-				window.location.reload();
-			}).catch((err) => {
-				console.error('Error while registering service worker:', err);
-			});
-		} else {
-			// Display the message as usual
-			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
-			displayFailureNotice(missingMsg + missing.join('\n'));
+			if (mode === 'hidden') {
+				statusOverlay.remove();
+				initializing = false;
+				return;
+			}
+			statusOverlay.style.visibility = 'visible';
+			statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+			statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+			statusMode = mode;
 		}
-	} else {
-		setStatusMode('progress');
-		engine.startGame({
-			'onProgress': function (current, total) {
-				if (current > 0 && total > 0) {
-					statusProgress.value = current;
-					statusProgress.max = total;
-				} else {
-					statusProgress.removeAttribute('value');
-					statusProgress.removeAttribute('max');
+
+		function setStatusNotice(text) {
+			while (statusNotice.lastChild) {
+				statusNotice.removeChild(statusNotice.lastChild);
+			}
+			const lines = text.split('\n');
+			lines.forEach((line) => {
+				statusNotice.appendChild(document.createTextNode(line));
+				statusNotice.appendChild(document.createElement('br'));
+			});
+		}
+
+		function displayFailureNotice(err) {
+			console.error(err);
+			if (err instanceof Error) {
+				setStatusNotice(err.message);
+			} else if (typeof err === 'string') {
+				setStatusNotice(err);
+			} else {
+				setStatusNotice('An unknown error occurred.');
+			}
+			setStatusMode('notice');
+			initializing = false;
+		}
+
+		const missing = Engine.getMissingFeatures({
+			threads: GODOT_THREADS_ENABLED,
+		});
+
+		if (missing.length !== 0) {
+			if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
+				let serviceWorkerRegistrationPromise;
+				try {
+					serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
+				} catch (err) {
+					serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
 				}
-			},
-		}).then(() => {
-			setStatusMode('hidden');
-		}, displayFailureNotice);
+				Promise.race([
+					serviceWorkerRegistrationPromise.then((registration) => {
+						if (registration != null) {
+							return Promise.reject(new Error('Service worker already exists.'));
+						}
+						return registration;
+					}).then(() => engine.installServiceWorker()),
+					new Promise((resolve) => {
+						setTimeout(() => resolve(), 2000);
+					}),
+				]).then(() => {
+					window.location.reload();
+				}).catch((err) => {
+					console.error('Error while registering service worker:', err);
+				});
+			} else {
+				const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
+				displayFailureNotice(missingMsg + missing.join('\n'));
+			}
+		} else {
+			setStatusMode('progress');
+			engine.startGame({
+				'onProgress': function (current, total) {
+					if (current > 0 && total > 0) {
+						statusProgress.value = current;
+						statusProgress.max = total;
+					} else {
+						statusProgress.removeAttribute('value');
+						statusProgress.removeAttribute('max');
+					}
+				},
+			}).then(() => {
+				setStatusMode('hidden');
+				// Bloquear mouse si es PC
+				if (!touchControls) {
+					// Se bloqueara en el juego (primer clic)
+				}
+			}, displayFailureNotice);
+		}
+	}());
+}
+
+document.getElementById('btn-phone').addEventListener('click', function() {
+	startGame(true);
+});
+
+document.getElementById('btn-pc').addEventListener('click', function() {
+	// Solicitar pointer lock inmediatamente (user gesture)
+	var canvas = document.getElementById('canvas');
+	canvas.style.display = 'block';
+	if (canvas.requestPointerLock) {
+		canvas.requestPointerLock();
 	}
-}());
+	startGame(false);
+});
 		</script>
 	</body>
 </html>
-
