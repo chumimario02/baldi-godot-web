@@ -122,12 +122,6 @@ window.addEventListener('DOMContentLoaded', function() {
 	if (canvas) canvas.style.display = 'block';
 	function choose(touch) {
 		window.godotTouchControls = touch;
-		if (!touch && canvas) {
-			try {
-				var r = canvas.requestPointerLock();
-				if (r && r.then) r.catch(function(e) { console.log('Pointer lock failed:', e); });
-			} catch(e) { console.log('Pointer lock error:', e); }
-		}
 		overlay.remove();
 	}
 	document.getElementById('dp-phone').addEventListener('click', function() { choose(true); });
