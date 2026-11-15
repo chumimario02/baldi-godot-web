@@ -120,13 +120,9 @@ window.addEventListener('DOMContentLoaded', function() {
 	document.body.appendChild(overlay);
 	var canvas = document.getElementById('canvas');
 	function choose(touch) {
+		localStorage.setItem('godotTouchControls', touch ? '1' : '0');
 		window.godotTouchControls = touch;
 		if (canvas) canvas.style.display = 'block';
-		if (!touch && canvas && canvas.requestPointerLock) {
-			setTimeout(function() {
-				try { canvas.requestPointerLock(); } catch(e) { console.log('Pointer lock failed:', e); }
-			}, 50);
-		}
 		overlay.remove();
 	}
 	document.getElementById('dp-phone').addEventListener('click', function() { choose(true); });
