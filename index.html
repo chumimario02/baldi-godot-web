@@ -115,19 +115,7 @@ window.addEventListener('DOMContentLoaded', function() {
 	var overlay = document.createElement('div');
 	overlay.id = 'device-prompt-overlay';
 	overlay.innerHTML = '<h1>En que dispositivo juegas?</h1>' +
-		'<button id="dp-phone">Telefono / Tablet</button>' +
-		'<button id="dp-pc">PC</button>';
-	document.body.appendChild(overlay);
-	var canvas = document.getElementById('canvas');
-	if (canvas) canvas.style.display = 'block';
-	function choose(touch) {
-		window.godotTouchControls = touch;
-		overlay.remove();
-	}
-	document.getElementById('dp-phone').addEventListener('click', function() { choose(true); });
-	document.getElementById('dp-pc').addEventListener('click', function() { choose(false); });
-});
-</script>
+		'<button id=
 	</head>
 	<body>
 		<canvas id="canvas">
