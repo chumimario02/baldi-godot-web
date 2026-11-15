@@ -112,8 +112,6 @@ body {
 </style>
 <script>
 window.addEventListener('DOMContentLoaded', function() {
-	var chosen = localStorage.getItem('godotTouchControls');
-	if (chosen !== null) return;
 	var overlay = document.createElement('div');
 	overlay.id = 'device-prompt-overlay';
 	overlay.innerHTML = '<h1>En que dispositivo juegas?</h1>' +
@@ -122,11 +120,12 @@ window.addEventListener('DOMContentLoaded', function() {
 	document.body.appendChild(overlay);
 	var canvas = document.getElementById('canvas');
 	function choose(touch) {
-		localStorage.setItem('godotTouchControls', touch ? '1' : '0');
 		window.godotTouchControls = touch;
 		if (canvas) canvas.style.display = 'block';
 		if (!touch && canvas && canvas.requestPointerLock) {
-			try { canvas.requestPointerLock(); } catch(e) { console.log('Pointer lock failed:', e); }
+			setTimeout(function() {
+				try { canvas.requestPointerLock(); } catch(e) { console.log('Pointer lock failed:', e); }
+			}, 50);
 		}
 		overlay.remove();
 	}
@@ -152,7 +151,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75132864,"index.wasm":52106500},"focusCanvas":true,"gdextensionLibs":[]};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75131616,"index.wasm":52106500},"focusCanvas":true,"gdextensionLibs":[]};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
