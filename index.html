@@ -92,7 +92,30 @@ body {
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-<style>#device-prompt-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:99999;font-family:sans-serif;}#device-prompt-overlay h1{font-size:2rem;margin-bottom:2rem;color:white;}#device-prompt-overlay button{font-size:1.5rem;padding:1rem 2rem;margin:.5rem;border:none;border-radius:.5rem;cursor:pointer;background:#4a4a4a;color:white;min-width:250px;}#device-prompt-overlay button:hover{background:#6a6a6a;}</style><script>window.addEventListener('load',function(){var o=document.createElement('div');o.id='device-prompt-overlay';o.innerHTML='<h1>En que dispositivo juegas?</h1><button id=dp-pc>PC</button>';document.body.appendChild(o);var c=document.getElementById('canvas');function choose(t){window.godotTouchControls=t;if(c)c.style.display='block';o.remove();}document.getElementById('dp-pc').addEventListener('click',function(){choose(false);});});</script>
+<style>
+#device-prompt-overlay {
+	position: fixed;
+	top: 0; left: 0; width: 100%; height: 100%;
+	background: #000;
+	display: flex; flex-direction: column;
+	justify-content: center; align-items: center;
+	z-index: 99999;
+	font-family: sans-serif;
+}
+#device-prompt-overlay h1 { font-size: 2rem; margin-bottom: 2rem; color: white; }
+#device-prompt-overlay button {
+	font-size: 1.5rem; padding: 1rem 2rem; margin: 0.5rem;
+	border: none; border-radius: 0.5rem; cursor: pointer;
+	background: #4a4a4a; color: white; min-width: 250px;
+}
+#device-prompt-overlay button:hover { background: #6a6a6a; }
+</style>
+<script>
+window.addEventListener('load', function() {
+	var overlay = document.createElement('div');
+	overlay.id = 'device-prompt-overlay';
+	overlay.innerHTML = '<h1>En que dispositivo juegas?</h1>' +
+		'<button id=
 	</head>
 	<body>
 		<canvas id="canvas">
