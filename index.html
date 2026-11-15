@@ -92,7 +92,46 @@ body {
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-
+<style>
+#device-prompt-overlay {
+	position: fixed;
+	top: 0; left: 0; width: 100%; height: 100%;
+	background: #000;
+	display: flex; flex-direction: column;
+	justify-content: center; align-items: center;
+	z-index: 99999;
+	font-family: sans-serif;
+}
+#device-prompt-overlay h1 { font-size: 2rem; margin-bottom: 2rem; color: white; }
+#device-prompt-overlay button {
+	font-size: 1.5rem; padding: 1rem 2rem; margin: 0.5rem;
+	border: none; border-radius: 0.5rem; cursor: pointer;
+	background: #4a4a4a; color: white; min-width: 250px;
+}
+#device-prompt-overlay button:hover { background: #6a6a6a; }
+</style>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+	var chosen = localStorage.getItem('godotTouchControls');
+	if (chosen !== null) return;
+	var overlay = document.createElement('div');
+	overlay.id = 'device-prompt-overlay';
+	overlay.innerHTML = '<h1>En que dispositivo juegas?</h1>' +
+		'<button id="dp-phone">Telefono / Tablet</button>' +
+		'<button id="dp-pc">PC</button>';
+	document.body.appendChild(overlay);
+	var canvas = document.getElementById('canvas');
+	if (canvas) canvas.style.display = 'none';
+	function choose(touch) {
+		localStorage.setItem('godotTouchControls', touch ? '1' : '0');
+		window.godotTouchControls = touch;
+		overlay.remove();
+		if (canvas) canvas.style.display = 'block';
+	}
+	document.getElementById('dp-phone').addEventListener('click', function() { choose(true); });
+	document.getElementById('dp-pc').addEventListener('click', function() { choose(false); });
+});
+</script>
 	</head>
 	<body>
 		<canvas id="canvas">
