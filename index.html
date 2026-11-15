@@ -121,12 +121,14 @@ window.addEventListener('DOMContentLoaded', function() {
 		'<button id="dp-pc">PC</button>';
 	document.body.appendChild(overlay);
 	var canvas = document.getElementById('canvas');
-	if (canvas) canvas.style.display = 'none';
 	function choose(touch) {
 		localStorage.setItem('godotTouchControls', touch ? '1' : '0');
 		window.godotTouchControls = touch;
-		overlay.remove();
 		if (canvas) canvas.style.display = 'block';
+		if (!touch && canvas && canvas.requestPointerLock) {
+			try { canvas.requestPointerLock(); } catch(e) { console.log('Pointer lock failed:', e); }
+		}
+		overlay.remove();
 	}
 	document.getElementById('dp-phone').addEventListener('click', function() { choose(true); });
 	document.getElementById('dp-pc').addEventListener('click', function() { choose(false); });
